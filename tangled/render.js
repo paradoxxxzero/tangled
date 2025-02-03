@@ -4,6 +4,8 @@ import includesSource from './shaders/includes.glsl?raw'
 import globalsSource from './shaders/globals.glsl?raw'
 import renderSource from './shaders/render.glsl?raw'
 import vertexSource from './shaders/vertex.glsl?raw'
+import oitVertexSource from './shaders/oit/vertex.glsl?raw'
+import oitFragmentSource from './shaders/oit/fragment.glsl?raw'
 import { cage, grid, tube } from './geometry'
 import {
   columnMajor,
@@ -168,16 +170,160 @@ export const recompileFragment = rt => {
   rt.env.uniforms.eye = gl.getUniformLocation(rt.env.program, 'eye')
   updateUniforms(rt)
 }
+export const storage = (rt, rb, type) => {
+  const { gl } = rt
+  gl.bindRenderbuffer(gl.RENDERBUFFER, rb)
+
+  gl.renderbufferStorage(
+    gl.RENDERBUFFER,
+    type,
+    gl.drawingBufferWidth,
+    gl.drawingBufferHeight
+  )
+  gl.bindRenderbuffer(gl.RENDERBUFFER, null)
+}
+
+export const textureFull = (rt, type, scale = null) => {
+  const { gl } = rt
+
+  const width = scale
+    ? ~~(scale * gl.drawingBufferWidth)
+    : gl.drawingBufferWidth
+  const height = scale
+    ? ~~(scale * gl.drawingBufferHeight)
+    : gl.drawingBufferHeight
+  const texture = gl.createTexture()
+  gl.bindTexture(gl.TEXTURE_2D, texture)
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false)
+  gl.texParameteri(
+    gl.TEXTURE_2D,
+    gl.TEXTURE_MAG_FILTER,
+    scale ? gl.LINEAR : gl.NEAREST
+  )
+  gl.texParameteri(
+    gl.TEXTURE_2D,
+    gl.TEXTURE_MIN_FILTER,
+    scale ? gl.LINEAR : gl.NEAREST
+  )
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+  gl.texStorage2D(gl.TEXTURE_2D, 1, type, width, height)
+  return { texture, width, height }
+}
+
+const tex = rt => {
+  const { gl } = rt
+  if (rt.env.fb.base) {
+    gl.deleteFramebuffer(rt.env.fb.base)
+    rt.env.fb.base = null
+  }
+  if (rt.env.fb.oit) {
+    gl.deleteFramebuffer(rt.env.fb.oit)
+    rt.env.fb.oit = null
+  }
+  if (rt.env.rb.base) {
+    gl.deleteRenderbuffer(rt.env.rb.base)
+    rt.env.rb.base = null
+  }
+  if (rt.env.rb.depth) {
+    gl.deleteRenderbuffer(rt.env.rb.depth)
+    rt.env.rb.depth = null
+  }
+  if (rt.env.textures.oitAccum) {
+    gl.deleteTexture(rt.env.textures.oitAccum.texture)
+    rt.env.textures.oitAccum = null
+  }
+  if (rt.env.textures.oitReveal) {
+    gl.deleteTexture(rt.env.textures.oitReveal.texture)
+    rt.env.textures.oitReveal = null
+  }
+  if (!rt.transparent) {
+    return
+  }
+  gl.activeTexture(gl.TEXTURE0)
+  rt.env.fb.base = gl.createFramebuffer()
+  gl.bindFramebuffer(gl.FRAMEBUFFER, rt.env.fb.base)
+  rt.env.rb.base = gl.createRenderbuffer()
+  storage(rt, rt.env.rb.base, gl.RGBA8)
+  gl.framebufferRenderbuffer(
+    gl.FRAMEBUFFER,
+    gl.COLOR_ATTACHMENT0,
+    gl.RENDERBUFFER,
+    rt.env.rb.base
+  )
+
+  rt.env.rb.depth = gl.createRenderbuffer()
+  storage(rt, rt.env.rb.depth, gl.DEPTH_COMPONENT24)
+  gl.framebufferRenderbuffer(
+    gl.FRAMEBUFFER,
+    gl.DEPTH_ATTACHMENT,
+    gl.RENDERBUFFER,
+    rt.env.rb.depth
+  )
+
+  rt.env.fb.oit = gl.createFramebuffer()
+  gl.bindFramebuffer(gl.FRAMEBUFFER, rt.env.fb.oit)
+  gl.framebufferRenderbuffer(
+    gl.FRAMEBUFFER,
+    gl.DEPTH_ATTACHMENT,
+    gl.RENDERBUFFER,
+    rt.env.rb.depth
+  )
+  gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1])
+
+  rt.env.textures.oitAccum = textureFull(rt, gl.RGBA16F)
+  gl.framebufferTexture2D(
+    gl.FRAMEBUFFER,
+    gl.COLOR_ATTACHMENT0,
+    gl.TEXTURE_2D,
+    rt.env.textures.oitAccum.texture,
+    0
+  )
+
+  rt.env.textures.oitReveal = textureFull(rt, gl.R16F)
+  gl.framebufferTexture2D(
+    gl.FRAMEBUFFER,
+    gl.COLOR_ATTACHMENT1,
+    gl.TEXTURE_2D,
+    rt.env.textures.oitReveal.texture,
+    0
+  )
+}
 
 export const changeProgram = rt => {
   const gl = rt.gl
   if (rt.env) {
+    if (rt.env.fb.oit) {
+      gl.deleteFramebuffer(rt.env.fb.oit)
+      rt.env.fb.oit = null
+    }
+    if (rt.env.fb.base) {
+      gl.deleteFramebuffer(rt.env.fb.base)
+    }
+
+    if (rt.env.rb.base) {
+      gl.deleteRenderbuffer(rt.env.rb.base)
+      rt.env.rb.base = null
+    }
+    if (rt.env.rb.depth) {
+      gl.deleteRenderbuffer(rt.env.rb.depth)
+      rt.env.rb.depth = null
+    }
+    if (rt.env.textures.oitAccum) {
+      gl.deleteTexture(rt.env.textures.oitAccum.texture)
+      rt.env.textures.oitAccum = null
+    }
+    if (rt.env.textures.oitReveal) {
+      gl.deleteTexture(rt.env.textures.oitReveal.texture)
+      rt.env.textures.oitReveal = null
+    }
     gl.deleteBuffer(rt.env.uvwBuffer)
     // gl.deleteBuffer(rt.env.vertexBuffer)
     gl.deleteBuffer(rt.env.indexBuffer)
     gl.deleteVertexArray(rt.env.vao)
     gl.deleteShader(rt.env.vertexShader)
     gl.deleteShader(rt.env.fragmentShader)
+    gl.deleteProgram(rt.env.oitProgram)
     gl.deleteProgram(rt.env.program)
     delete rt.env
   }
@@ -186,13 +332,36 @@ export const changeProgram = rt => {
     vertexShader: gl.createShader(gl.VERTEX_SHADER),
     fragmentShader: gl.createShader(gl.FRAGMENT_SHADER),
     program: gl.createProgram(),
+    oitVertexShader: gl.createShader(gl.VERTEX_SHADER),
+    oitFragmentShader: gl.createShader(gl.FRAGMENT_SHADER),
+    oitProgram: gl.createProgram(),
+    fb: {
+      base: null,
+      oit: null,
+    },
+    rb: {
+      base: null,
+      depth: null,
+    },
+    textures: {
+      oitAccum: null,
+      oitReveal: null,
+    },
   }
+  gl.attachShader(rt.env.oitProgram, rt.env.oitVertexShader)
+  gl.attachShader(rt.env.oitProgram, rt.env.oitFragmentShader)
+  compileShader(rt, oitVertexSource, rt.env.oitVertexShader)
+  compileShader(rt, oitFragmentSource, rt.env.oitFragmentShader)
+  gl.linkProgram(rt.env.oitProgram)
+  gl.useProgram(rt.env.oitProgram)
+  gl.uniform1i(gl.getUniformLocation(rt.env.oitProgram, 'accumTexture'), 0)
+  gl.uniform1i(gl.getUniformLocation(rt.env.oitProgram, 'revealageTexture'), 1)
 
   gl.attachShader(rt.env.program, rt.env.vertexShader)
   gl.attachShader(rt.env.program, rt.env.fragmentShader)
-
   recompileVertex(rt)
   recompileFragment(rt)
+  gl.useProgram(rt.env.program)
 
   rt.env.camera = {
     zoom: 8,
@@ -292,6 +461,7 @@ export const changeProgram = rt => {
     new Float32Array(geometry.uvws),
     gl.STATIC_DRAW
   )
+  tex(rt)
 }
 
 export const initializeGl = (rt, onContextLost, onContextRestored) => {
@@ -303,8 +473,14 @@ export const initializeGl = (rt, onContextLost, onContextRestored) => {
   }
 
   const gl = canvas.getContext('webgl2', {
+    alpha: true,
+    antialias: false,
+    depth: true,
+    stencil: false,
+    preserveDrawingBuffer: false,
     powerPreference: 'high-performance',
   })
+  gl.getExtension('EXT_color_buffer_float')
 
   canvas.addEventListener('webglcontextlost', onContextLost, false)
   canvas.addEventListener('webglcontextrestored', onContextRestored, false)
@@ -381,32 +557,73 @@ export const render = (rt, forceSize) => {
     rt.env.uniforms.time,
     rt.animate ? performance.now() - rt.timeref : 0
   )
-  if (resizeCanvasToDisplaySize(gl.canvas, rt.supersampling, forceSize)) {
+  if (
+    resizeCanvasToDisplaySize(gl.canvas, rt.supersampling, forceSize) ||
+    rt.transparent !== !!rt.env.fb.oit
+  ) {
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
+    tex(rt)
+    gl.useProgram(rt.env.program)
     gl.uniform2fv(rt.env.uniforms.aspect, [
       gl.canvas.width / gl.canvas.height,
       1 / Math.max(gl.canvas.width, gl.canvas.height),
     ])
   }
 
-  gl.clearColor(0.1, 0.1, 0.1, 0)
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+  gl.clearColor(...rt.background)
+  gl.clearDepth(1)
 
   if (rt.transparent) {
-    // gl.disable(gl.CULL_FACE)
-    gl.disable(gl.DEPTH_TEST)
+    gl.disable(gl.BLEND)
+    gl.enable(gl.DEPTH_TEST)
+    gl.depthMask(true)
+    gl.depthFunc(gl.LESS)
+    gl.bindFramebuffer(gl.FRAMEBUFFER, rt.env.fb.base)
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     gl.enable(gl.BLEND)
     gl.depthMask(false)
+    gl.blendFuncSeparate(gl.ONE, gl.ONE, gl.ZERO, gl.ONE_MINUS_SRC_ALPHA)
+    gl.bindFramebuffer(gl.FRAMEBUFFER, rt.env.fb.oit)
+    gl.clear(gl.COLOR_BUFFER_BIT)
+    gl.useProgram(rt.env.program)
+    gl.bindVertexArray(rt.env.vao)
+    gl.drawElements(gl.TRIANGLES, rt.env.elements, gl.UNSIGNED_SHORT, 0)
+    gl.depthMask(true)
     gl.depthFunc(gl.ALWAYS)
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+    gl.blendFunc(gl.ONE_MINUS_SRC_ALPHA, gl.SRC_ALPHA)
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, rt.env.fb.base)
+    gl.useProgram(rt.env.oitProgram)
+    gl.activeTexture(gl.TEXTURE0)
+    gl.bindTexture(gl.TEXTURE_2D, rt.env.textures.oitAccum.texture)
+    gl.activeTexture(gl.TEXTURE1)
+    gl.bindTexture(gl.TEXTURE_2D, rt.env.textures.oitReveal.texture)
+    gl.drawArrays(gl.TRIANGLES, 0, 3)
+
+    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, rt.env.fb.base)
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null)
+    gl.blitFramebuffer(
+      0,
+      0,
+      gl.drawingBufferWidth,
+      gl.drawingBufferHeight,
+      0,
+      0,
+      gl.drawingBufferWidth,
+      gl.drawingBufferHeight,
+      gl.COLOR_BUFFER_BIT,
+      gl.NEAREST
+    )
+    gl.useProgram(rt.env.program)
   } else {
-    // gl.enable(gl.CULL_FACE)
-    gl.enable(gl.DEPTH_TEST)
+    // gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     gl.disable(gl.BLEND)
     gl.depthMask(true)
+    gl.enable(gl.DEPTH_TEST)
     gl.depthFunc(gl.LEQUAL)
+    gl.drawElements(gl.TRIANGLES, rt.env.elements, gl.UNSIGNED_SHORT, 0)
   }
-  gl.drawElements(gl.TRIANGLES, rt.env.elements, gl.UNSIGNED_SHORT, 0)
 }
 
 window.render = render

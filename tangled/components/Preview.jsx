@@ -33,6 +33,10 @@ const previewer = {
       gl: this.gl,
       ...defaultParams,
       ...params,
+      transparent: false,
+      alpha: 100,
+      grid: false,
+      background: [0, 0, 0, 1],
     }
     changeProgram(rt)
     rt.env.camera.update({

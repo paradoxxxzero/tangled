@@ -24,5 +24,7 @@ uniform float hue;
 uniform float saturation;
 uniform float lightness;
 
+uniform vec3 eye;
+
 #include globals
 #include render

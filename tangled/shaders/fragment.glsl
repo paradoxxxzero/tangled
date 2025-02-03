@@ -6,14 +6,22 @@ precision highp int;
 ##CONFIG
 
 #include includes
-
-uniform vec3 eye;
-
 in vec3 vPosition;
 in vec3 vUvw;
 in vec3 vNormal;
 
+#ifdef TRANSPARENT
+layout(location = 0) out vec4 accumColor;
+layout(location = 1) out float accumAlpha;
+
+float weight(float z, float a) {
+    float b = min(1.0, a * 10.0) + 0.01;
+    float c = 1.0 - z * 0.9;
+    return clamp(b * b * b * 1e8 * c * c * c, 1e-2, 3e3);
+}
+#else
 out vec4 outColor;
+#endif
 
 vec3 hsl2rgb(in vec3 c) {
     vec3 rgb = clamp(abs(mod(c.x * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
@@ -97,9 +105,10 @@ void main() {
     vec3 lightPosition = eye;
     vec3 lightDirection = normalize(lightPosition - vPosition);
     float diffuse = abs(dot(vNormal, lightDirection));
+    diffuse = floor(diffuse * 4.) / 4.;
     vec3 halfVector = normalize(lightDirection + eyeDirection);
     float specular = pow(abs(dot(vNormal, halfVector)), 32.);
-    float k = .8;//diffuse + specular;
+    float k = diffuse + specular;
     vec3 color = (k + .2) * albedo;
 
     float opacity = alpha;
@@ -116,5 +125,12 @@ void main() {
     color *= dist;
     #endif
     #endif
+
+    #ifdef TRANSPARENT
+    float w = weight(gl_FragCoord.z, opacity);
+    accumColor = vec4(color * opacity * w, opacity);
+    accumAlpha = opacity * w;
+    #else
     outColor = vec4(color, opacity);
+    #endif
 }

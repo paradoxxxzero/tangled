@@ -20,7 +20,7 @@ export const useRender = (runtime, setRuntime) => {
       changeProgram(runtime)
       return runtime
     })
-  }, [runtime.detail, setRuntime])
+  }, [runtime.detail, runtime.vars, setRuntime])
 
   useEffect(() => {
     setRuntime(runtime => {

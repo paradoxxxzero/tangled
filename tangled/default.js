@@ -52,6 +52,7 @@ export const defaultParams = {
   palette: 'rainbow',
   animate: false,
   speed: 100,
+  background: [0.1, 0.1, 0.1, 1],
 }
 
 export const allParams = Object.keys(defaultParams)
@@ -79,7 +80,7 @@ export const uniformParams = {
   smax: '1f',
   rmin: '1f',
   rmax: '1f',
-  detail: '1f',
+  aspect: '1f',
   alpha: {
     type: '1f',
     value: v => v / 100,
