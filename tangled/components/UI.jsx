@@ -326,6 +326,15 @@ export default function UI({ runtime, params, setRuntime, updateParams }) {
                   onChange={handleChange}
                 />
               ) : null}
+              {['full'].includes(showUI) ? (
+                <Number
+                  name="celShading"
+                  label="Cel Shading"
+                  min={0}
+                  value={params.celShading}
+                  onChange={handleChange}
+                />
+              ) : null}
               {['advanced', 'full'].includes(showUI) && params.animate ? (
                 <Number
                   name="speed"
@@ -348,12 +357,45 @@ export default function UI({ runtime, params, setRuntime, updateParams }) {
           {['simple', 'advanced', 'full'].includes(showUI) ? (
             <aside className="params">
               <Number
-                name="detail"
-                label="Detail"
-                step={25}
-                value={params.detail}
+                name="x_resolution"
+                label="X Resolution"
+                value={params.x_resolution}
                 onChange={handleChange}
               />
+              <Number
+                name="y_resolution"
+                label="Y Resolution"
+                value={params.y_resolution}
+                onChange={handleChange}
+              />
+              {params.vars.length > 2 ? (
+                <>
+                  <Number
+                    name="z_resolution"
+                    label="Z Resolution"
+                    value={params.z_resolution}
+                    onChange={handleChange}
+                  />
+                  <Boolean
+                    name="x_faces"
+                    label="X Faces"
+                    value={params.x_faces}
+                    onChange={handleChange}
+                  />
+                  <Boolean
+                    name="y_faces"
+                    label="Y Faces"
+                    value={params.y_faces}
+                    onChange={handleChange}
+                  />
+                  <Boolean
+                    name="z_faces"
+                    label="Z Faces"
+                    value={params.z_faces}
+                    onChange={handleChange}
+                  />
+                </>
+              ) : null}
               <Number
                 name="thickness"
                 label="Thickness"
@@ -383,38 +425,38 @@ export default function UI({ runtime, params, setRuntime, updateParams }) {
                     onChange={handleChange}
                   />
                   {params.grid ? (
-                    <Number
-                      name="gridWidth"
-                      label="Grid Width"
-                      step={10}
-                      value={params.gridWidth}
-                      onChange={handleChange}
-                    />
-                  ) : null}
-                  <Number
-                    name="subgridScale"
-                    label="SubGrid"
-                    toggler={params.subgrid}
-                    togglerName="subgrid"
-                    value={params.subgridScale}
-                    onChange={handleChange}
-                  />
-                  {params.subgrid ? (
-                    <Number
-                      name="subgridWidth"
-                      label="SubGrid Width"
-                      step={10}
-                      value={params.subgridWidth}
-                      onChange={handleChange}
-                    />
-                  ) : null}
-                  {params.grid ? (
-                    <Boolean
-                      name="invertGrid"
-                      label="Invert Grid"
-                      value={params.invertGrid}
-                      onChange={handleChange}
-                    />
+                    <>
+                      <Number
+                        name="gridWidth"
+                        label="Grid Width"
+                        step={10}
+                        value={params.gridWidth}
+                        onChange={handleChange}
+                      />
+                      <Number
+                        name="subgridScale"
+                        label="SubGrid"
+                        toggler={params.subgrid}
+                        togglerName="subgrid"
+                        value={params.subgridScale}
+                        onChange={handleChange}
+                      />
+                      {params.subgrid ? (
+                        <Number
+                          name="subgridWidth"
+                          label="SubGrid Width"
+                          step={10}
+                          value={params.subgridWidth}
+                          onChange={handleChange}
+                        />
+                      ) : null}
+                      <Boolean
+                        name="invertGrid"
+                        label="Invert Grid"
+                        value={params.invertGrid}
+                        onChange={handleChange}
+                      />
+                    </>
                   ) : null}
                 </>
               ) : null}

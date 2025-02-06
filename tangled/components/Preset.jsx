@@ -85,10 +85,34 @@ export default memo(function Preset({
             <div className="preset-content">
               <span className="preset-name">{name}</span>
               <code className="preset-formula">
-                <span className="preset-assignment"></span> {params.xfun}
-                <span className="preset-assignment"></span> {params.yfun}
-                <span className="preset-assignment"></span> {params.zfun}
-                <span className="preset-assignment"></span> {params.wfun}
+                {!['', '0'].includes(params.xfun) ? (
+                  <>
+                    <span className="preset-assignment">x(t) = </span>{' '}
+                    {params.xfun}
+                    <br />
+                  </>
+                ) : null}
+                {!['', '0'].includes(params.yfun) ? (
+                  <>
+                    <span className="preset-assignment">y(t) = </span>{' '}
+                    {params.yfun}
+                    <br />
+                  </>
+                ) : null}
+                {!['', '0'].includes(params.zfun) ? (
+                  <>
+                    <span className="preset-assignment">z(t) = </span>{' '}
+                    {params.zfun}
+                    <br />
+                  </>
+                ) : null}
+                {!['', '0'].includes(params.wfun) ? (
+                  <>
+                    <span className="preset-assignment">w(t) = </span>{' '}
+                    {params.wfun}
+                    <br />
+                  </>
+                ) : null}
               </code>
             </div>
             {shown ? <Preview params={params} /> : null}

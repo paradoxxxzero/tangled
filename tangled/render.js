@@ -4,6 +4,7 @@ import includesSource from './shaders/includes.glsl?raw'
 import globalsSource from './shaders/globals.glsl?raw'
 import renderSource from './shaders/render.glsl?raw'
 import vertexSource from './shaders/vertex.glsl?raw'
+import colorsSource from './shaders/colors.glsl?raw'
 import oitVertexSource from './shaders/oit/vertex.glsl?raw'
 import oitFragmentSource from './shaders/oit/fragment.glsl?raw'
 import { cage, grid, tube } from './geometry'
@@ -22,6 +23,7 @@ import { cbrt, sqrt, VARS } from './math'
 
 export const includes = {
   includes: includesSource,
+  colors: colorsSource,
   globals: globalsSource,
   render: renderSource,
 }
@@ -35,7 +37,7 @@ export const constants = rt =>
       (res =>
         res !== false
           ? `#define ${camelCaseToSnakeCase(key)}${res === true ? '' : ` ${res}`}`
-          : '')(typeof value === 'function' ? value(rt) : rt[key])
+          : '')(typeof value === 'function' ? value(rt, rt[key]) : rt[key])
     )
     .filter(s => s)
     .join('\n')
@@ -292,6 +294,7 @@ const tex = rt => {
 
 export const changeProgram = rt => {
   const gl = rt.gl
+  let camera = rt.env?.camera
   if (rt.env) {
     if (rt.env.fb.oit) {
       gl.deleteFramebuffer(rt.env.fb.oit)
@@ -363,13 +366,14 @@ export const changeProgram = rt => {
   recompileFragment(rt)
   gl.useProgram(rt.env.program)
 
-  rt.env.camera = {
+  rt.env.camera = camera || {
     zoom: 8,
     fov: Math.PI / 3,
     eye: [0, 0, 0],
     rotation: ident(),
     near: 0.01,
     far: 100,
+    env: null,
     update(offset) {
       const position = translate(0, 0, this.zoom)
       const eye = [0, 0, this.zoom, 0]
@@ -411,11 +415,11 @@ export const changeProgram = rt => {
       this.viewProjection = columnMajor(viewProjection)
       // this.viewProjectionInverse = columnMajor(inverse(viewProjection))
       gl.uniformMatrix4fv(
-        rt.env.uniforms.viewProjection,
+        this.env.uniforms.viewProjection,
         false,
         this.viewProjection
       )
-      gl.uniform3fv(rt.env.uniforms.eye, this.eye)
+      gl.uniform3fv(this.env.uniforms.eye, this.eye)
     },
     center() {
       this.eye = [0, 0, 0]
@@ -423,13 +427,9 @@ export const changeProgram = rt => {
       this.update()
     },
   }
-  rt.env.camera.update()
-  const geometry =
-    rt.vars.length === 1
-      ? tube({ radialSegments: 128, segments: ~~((32 * rt.detail) / 128) })
-      : rt.vars.length === 2
-        ? grid({ resolution: ~~sqrt(rt.detail) })
-        : cage({ resolution: ~~cbrt(rt.detail) })
+  const geometry = (
+    rt.vars.length === 1 ? tube : rt.vars.length === 2 ? grid : cage
+  )(rt)
 
   rt.env.elements = geometry.indices.length
   rt.env.vao = gl.createVertexArray()
@@ -462,6 +462,8 @@ export const changeProgram = rt => {
     gl.STATIC_DRAW
   )
   tex(rt)
+  rt.env.camera.env = rt.env
+  rt.env.camera.update()
 }
 
 export const initializeGl = (rt, onContextLost, onContextRestored) => {

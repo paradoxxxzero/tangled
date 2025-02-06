@@ -7,7 +7,6 @@ uniform float rmin;
 uniform float rmax;
 
 uniform float alpha;
-uniform float detail;
 uniform float anakata;
 uniform float speed;
 uniform float time;

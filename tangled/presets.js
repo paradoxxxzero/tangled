@@ -1,5 +1,5 @@
 import { defaultParams } from './default'
-import { PI } from './math'
+import { ETA, PI, TAU } from './math'
 import { filterParams } from './params'
 
 const withDefaults = presets =>
@@ -42,10 +42,10 @@ export const presets = withDefaults([
   {
     name: 'Clifford Torus',
     params: {
-      xfun: 'sin(t)',
-      yfun: 'cos(t)',
-      zfun: 'sin(s)',
-      wfun: 'cos(s)',
+      xfun: 'a * sin(t)',
+      yfun: 'a * cos(t)',
+      zfun: 'a * sin(s)',
+      wfun: 'a * cos(s)',
     },
   },
   {
@@ -178,19 +178,72 @@ export const presets = withDefaults([
   {
     name: '3-sphere',
     params: {
-      xfun: 'cos(t)',
-      yfun: 'sin(t)cos(s)',
-      zfun: 'sin(t)sin(s)cos(r)',
-      wfun: 'sin(t)sin(s)sin(r)',
+      xfun: 'a * cos(t)',
+      yfun: 'a * sin(t)cos(s)',
+      zfun: 'a * sin(t)sin(s)cos(r)',
+      wfun: 'a * sin(t)sin(s)sin(r)',
+      tmax: PI,
+      smax: PI,
+      args: {
+        a: 2,
+      },
+    },
+  },
+  {
+    name: 'Spherinder',
+    params: {
+      xfun: 'a * cos(t)sin(s)',
+      yfun: 'a * sin(t)sin(s)',
+      zfun: 'a * cos(s)',
+      wfun: 'b * r',
+      rmax: 1,
+      args: {
+        a: 2,
+        b: 2,
+      },
+    },
+  },
+  {
+    name: 'Cubinder',
+    params: {
+      xfun: 'a * cos(t)',
+      yfun: 'a * sin(t)',
+      zfun: 'b * s',
+      wfun: 'c * r',
+      smax: 1,
+      rmax: 1,
+      args: {
+        a: 2,
+        b: 2,
+        c: 2,
+      },
     },
   },
   {
     name: 'Hopf fibrations',
     params: {
-      xfun: 'sin(t)cos(s)',
-      yfun: 'sin(t)sin(s)',
-      zfun: 'cos(t)cos(r)',
-      wfun: 'cos(t)sin(r)',
+      xfun: 'a * sin(t)cos(.5*(s+r))',
+      yfun: 'a * sin(t)sin(.5*(s+r))',
+      zfun: 'a * cos(t)cos(.5*(s-r))',
+      wfun: 'a * cos(t)sin(.5*(s-r))',
+      tmax: ETA,
+      rmax: 2 * TAU,
+      args: {
+        a: 2,
+      },
+    },
+  },
+  {
+    name: 'Hopf fibration',
+    params: {
+      xfun: 'a * sin(t)cos(.5*(s+b))',
+      yfun: 'a * sin(t)sin(.5*(s+b))',
+      zfun: 'a * cos(t)cos(.5*(s-b))',
+      wfun: 'a * cos(t)sin(.5*(s-b))',
+      tmax: ETA,
+      args: {
+        a: 2,
+      },
     },
   },
 ])

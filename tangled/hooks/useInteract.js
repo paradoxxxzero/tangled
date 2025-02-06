@@ -83,7 +83,9 @@ export const useInteract = (runtime, updateParams) => {
       runtime.move,
       runtime.control,
       runtime.rotation,
-      runtime.detail,
+      runtime.x_resolution,
+      runtime.y_resolution,
+      runtime.z_resolution,
     ]
   )
 

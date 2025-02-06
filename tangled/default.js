@@ -9,6 +9,12 @@ export const palettes = [
   'orange_purple',
   'yellow_purple',
   'pink_green',
+  'pink_yellow',
+  'viridis',
+  'plasma',
+  'magma',
+  'inferno',
+  'turbo',
 ]
 
 export const controls = ['3d', '4d', 'arg']
@@ -33,7 +39,12 @@ export const defaultParams = {
   subgridWidth: 50,
   subgridScale: 50,
   invertGrid: false,
-  detail: 1000,
+  x_resolution: 10,
+  y_resolution: 10,
+  z_resolution: 10,
+  x_faces: true,
+  y_faces: true,
+  z_faces: true,
   control: '3d',
   anakata: 2.5,
   offset: 80,
@@ -41,6 +52,8 @@ export const defaultParams = {
   hue: 0,
   saturation: 100,
   lightness: 100,
+  celShading: 4,
+  specular: true,
   supersampling: window.devicePixelRatio > 2 ? window.devicePixelRatio / 2 : 1,
   matrix: ident(),
   rotation: 0,
@@ -64,6 +77,8 @@ export const compileConstants = {
   subgrid: null,
   transparent: null,
   invertGrid: null,
+  celShading: (_, v) => v !== 0 && v,
+  specular: null,
 }
 export const compileParams = [
   'xfun',

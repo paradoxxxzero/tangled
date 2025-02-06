@@ -1,53 +1,71 @@
 import { PI, TAU, cos, sin } from './math'
 
-export const cage = ({ resolution = 100 } = {}) => {
+export const cage = ({
+  x_resolution,
+  y_resolution,
+  z_resolution,
+  x_faces,
+  y_faces,
+  z_faces,
+} = {}) => {
   const indices = []
   const vertices = []
   const uvws = []
 
-  const step = 1 / resolution
-  const count = 2 * resolution + 1
-  const count2 = count * count
+  const x_step = 1 / x_resolution
+  const x_count = 2 * x_resolution + 1
+  const y_step = 1 / y_resolution
+  const y_count = 2 * y_resolution + 1
+  const z_step = 1 / z_resolution
+  const z_count = 2 * z_resolution + 1
 
-  for (let k = 0; k < count; k++) {
-    for (let j = 0; j < count; j++) {
-      for (let i = 0; i < count; i++) {
-        vertices.push(-1 + i * step, -1 + j * step, -1 + k * step)
-        uvws.push(i / (count - 1), j / (count - 1), k / (count - 1))
+  const xy_count = x_count * y_count
+
+  for (let k = 0; k < z_count; k++) {
+    for (let j = 0; j < y_count; j++) {
+      for (let i = 0; i < x_count; i++) {
+        vertices.push(-1 + i * x_step, -1 + j * y_step, -1 + k * z_step)
+        uvws.push(i / (x_count - 1), j / (y_count - 1), k / (z_count - 1))
         if (i > 0 && j > 0 && k > 0) {
           const i1 = i - 1
           const j1 = j - 1
           const k1 = k - 1
-          indices.push(
-            i + j * count + k * count2,
-            i + j1 * count + k * count2,
-            i1 + j1 * count + k * count2
-          )
-          indices.push(
-            i + j * count + k * count2,
-            i1 + j1 * count + k * count2,
-            i1 + j * count + k * count2
-          )
-          indices.push(
-            i + j * count + k * count2,
-            i + j * count + k1 * count2,
-            i1 + j * count + k1 * count2
-          )
-          indices.push(
-            i + j * count + k * count2,
-            i1 + j * count + k1 * count2,
-            i1 + j * count + k * count2
-          )
-          indices.push(
-            i + j * count + k * count2,
-            i + j1 * count + k * count2,
-            i + j1 * count + k1 * count2
-          )
-          indices.push(
-            i + j * count + k * count2,
-            i + j1 * count + k1 * count2,
-            i + j * count + k1 * count2
-          )
+          if (x_faces) {
+            indices.push(
+              i + j * x_count + k * xy_count,
+              i + j1 * x_count + k * xy_count,
+              i1 + j1 * x_count + k * xy_count
+            )
+            indices.push(
+              i + j * x_count + k * xy_count,
+              i1 + j1 * x_count + k * xy_count,
+              i1 + j * x_count + k * xy_count
+            )
+          }
+          if (y_faces) {
+            indices.push(
+              i + j * x_count + k * xy_count,
+              i + j * x_count + k1 * xy_count,
+              i1 + j * x_count + k1 * xy_count
+            )
+            indices.push(
+              i + j * x_count + k * xy_count,
+              i1 + j * x_count + k1 * xy_count,
+              i1 + j * x_count + k * xy_count
+            )
+          }
+          if (z_faces) {
+            indices.push(
+              i + j * x_count + k * xy_count,
+              i + j1 * x_count + k * xy_count,
+              i + j1 * x_count + k1 * xy_count
+            )
+            indices.push(
+              i + j * x_count + k * xy_count,
+              i + j1 * x_count + k1 * xy_count,
+              i + j * x_count + k1 * xy_count
+            )
+          }
         }
       }
     }
@@ -59,23 +77,25 @@ export const cage = ({ resolution = 100 } = {}) => {
   }
 }
 
-export const grid = ({ resolution = 100 } = {}) => {
+export const grid = ({ x_resolution, y_resolution } = {}) => {
   const indices = []
   const vertices = []
   const uvws = []
 
-  const step = 1 / resolution
-  const count = 2 * resolution + 1
+  const x_step = 1 / x_resolution
+  const x_count = 2 * x_resolution + 1
+  const y_step = 1 / y_resolution
+  const y_count = 2 * y_resolution + 1
 
-  for (let j = 0; j < count; j++) {
-    for (let i = 0; i < count; i++) {
-      vertices.push(-1 + i * step, -1 + j * step)
-      uvws.push(i / (count - 1), j / (count - 1), 0)
+  for (let j = 0; j < y_count; j++) {
+    for (let i = 0; i < x_count; i++) {
+      vertices.push(-1 + i * x_step, -1 + j * y_step)
+      uvws.push(i / (x_count - 1), j / (y_count - 1), 0)
       if (i > 0 && j > 0) {
         const i1 = i - 1
         const j1 = j - 1
-        indices.push(i + j * count, i + j1 * count, i1 + j1 * count)
-        indices.push(i + j * count, i1 + j1 * count, i1 + j * count)
+        indices.push(i + j * x_count, i + j1 * x_count, i1 + j1 * x_count)
+        indices.push(i + j * x_count, i1 + j1 * x_count, i1 + j * x_count)
       }
     }
   }
@@ -91,8 +111,8 @@ export const tube = ({
   radiusTop = 1,
   radiusBottom = 1,
   height = 1,
-  radialSegments = 8,
-  segments = 1,
+  x_resolution,
+  y_resolution,
 } = {}) => {
   const indices = []
   const vertices = []
@@ -103,20 +123,21 @@ export const tube = ({
     radiusTop = radius
     radiusBottom = radius
   }
-
+  const x_segments = x_resolution
+  const y_segments = y_resolution * 10
   let index = 0
   const indexArray = []
   const halfHeight = height / 2
   const slope = (radiusBottom - radiusTop) / height
 
-  for (let y = 0; y <= segments; y++) {
+  for (let y = 0; y <= y_segments; y++) {
     const indexRow = []
 
-    const v = y / segments
+    const v = y / y_segments
     const radius = v * (radiusBottom - radiusTop) + radiusTop
 
-    for (let x = 0; x <= radialSegments; x++) {
-      const u = x / radialSegments
+    for (let x = 0; x <= x_segments; x++) {
+      const u = x / x_segments
 
       const theta = u * TAU
 
@@ -141,8 +162,8 @@ export const tube = ({
     indexArray.push(indexRow)
   }
 
-  for (let x = 0; x < radialSegments; x++) {
-    for (let y = 0; y < segments; y++) {
+  for (let x = 0; x < x_segments; x++) {
+    for (let y = 0; y < y_segments; y++) {
       const a = indexArray[y][x]
       const b = indexArray[y + 1][x]
       const c = indexArray[y + 1][x + 1]
