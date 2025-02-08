@@ -1,10 +1,10 @@
 uniform float args;
-uniform float tmin;
-uniform float tmax;
-uniform float smin;
-uniform float smax;
-uniform float rmin;
-uniform float rmax;
+uniform float umin;
+uniform float umax;
+uniform float vmin;
+uniform float vmax;
+uniform float wmin;
+uniform float wmax;
 
 uniform float anakata;
 uniform float speed;

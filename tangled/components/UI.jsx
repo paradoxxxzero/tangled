@@ -238,32 +238,32 @@ export default function UI({ runtime, params, setRuntime, updateParams }) {
                 label={
                   <Declaration name="x" vars={params.vars} args={params.args} />
                 }
-                name="xfun"
-                value={params.xfun}
+                name="xfn"
+                value={params.xfn}
                 onChange={handleChange}
               />
               <Formula
                 label={
                   <Declaration name="y" vars={params.vars} args={params.args} />
                 }
-                name="yfun"
-                value={params.yfun}
+                name="yfn"
+                value={params.yfn}
                 onChange={handleChange}
               />
               <Formula
                 label={
                   <Declaration name="z" vars={params.vars} args={params.args} />
                 }
-                name="zfun"
-                value={params.zfun}
+                name="zfn"
+                value={params.zfn}
                 onChange={handleChange}
               />
               <Formula
                 label={
                   <Declaration name="w" vars={params.vars} args={params.args} />
                 }
-                name="wfun"
-                value={params.wfun}
+                name="wfn"
+                value={params.wfn}
                 onChange={handleChange}
               />
             </aside>
@@ -339,6 +339,14 @@ export default function UI({ runtime, params, setRuntime, updateParams }) {
                     options={shadings}
                     onChange={handleChange}
                   />
+                  <Number
+                    name="ambient"
+                    label="Ambient"
+                    min={0}
+                    step={0.1}
+                    value={params.ambient}
+                    onChange={handleChange}
+                  />
                   <Select
                     label="Diffuse"
                     name="diffuse"
@@ -365,7 +373,7 @@ export default function UI({ runtime, params, setRuntime, updateParams }) {
                     />
                   ) : null}
                   {params.diffuse === 'oren-nayar' ||
-                  params.specular === 'cook-torrance' ||
+                  params.spwecular === 'cook-torrance' ||
                   params.specular === 'ward-anisotropic' ? (
                     <Number
                       name="roughness"

@@ -50,7 +50,7 @@ float grid(vec4 color, vec3 vUvw, float scale, float width) {
 }
 
 void main() {
-    vec3 baseColor = color(vUvw.y * 100.);
+    vec3 baseColor = color(vUvw.x * 100.);
     #ifdef SHADING
     vec4 color = light(vPosition, vNormal, baseColor, vUvw);
     #else

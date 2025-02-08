@@ -43,47 +43,49 @@ void main() {
 
     #init_args
 
+    float u = umin + (umax - umin) * uvw.x;
+    #if DIMENSIONS > 1
+    float v = vmin + (vmax - vmin) * uvw.y;
+    #endif
+    #if DIMENSIONS > 2
+    float w = wmin + (wmax - wmin) * uvw.z;
+    #endif
+
     #if DIMENSIONS == 1
     float eps = 5e-3;
-    float t = tmin + (tmax - tmin) * uvw.y;
-    vec3 proj = xproject(matrix * vec4(x(t), y(t), z(t), w(t)));
+    vec3 proj = xproject(matrix * vec4(xfn(u), yfn(u), zfn(u), wfn(u)));
 
-    float n = tmin + (tmax - tmin) * (uvw.y + eps);
-    vec3 nextProj = xproject(matrix * vec4(x(n), y(n), z(n), w(n)));
+    float n = umin + (umax - umin) * (uvw.x + eps);
+    vec3 nextProj = xproject(matrix * vec4(xfn(n), yfn(n), zfn(n), wfn(n)));
 
     vec3 tangent = normalize(proj - nextProj);
 
     vec3 norm = cross(nextProj + NOISE, proj);
-    // Rodrigues' rotation formula: rotate norm around tangent by angle r:
-    float r = uvw.x * TAU;
-    norm = normalize(norm * cos(r) + cross(tangent, norm) * sin(r));
+    // Rodrigues' rotation formula: rotate norm around tangent by angle theta:
+    float theta = uvw.y * TAU;
+    norm = normalize(norm * cos(theta) + cross(tangent, norm) * sin(theta));
 
     vPosition = proj + norm * thickness;
     vNormal = norm;
     #elif DIMENSIONS == 2
     float eps = 5e-5;
-    float t = tmin + (tmax - tmin) * uvw.x;
-    float s = smin + (smax - smin) * uvw.y;
-    vec3 proj = xproject(matrix * vec4(x(t, s), y(t, s), z(t, s), w(t, s)));
-    float n = tmin + (tmax - tmin) * (uvw.x + eps);
-    vec3 proj1 = xproject(matrix * vec4(x(n, s), y(n, s), z(n, s), w(n, s)));
-    float m = smin + (smax - smin) * (uvw.y + eps);
-    vec3 proj2 = xproject(matrix * vec4(x(t, m), y(t, m), z(t, m), w(t, m)));
+    vec3 proj = xproject(matrix * vec4(xfn(u, v), yfn(u, v), zfn(u, v), wfn(u, v)));
+    float n = umin + (umax - umin) * (uvw.x + eps);
+    vec3 proj1 = xproject(matrix * vec4(xfn(n, v), yfn(n, v), zfn(n, v), wfn(n, v)));
+    float m = vmin + (vmax - vmin) * (uvw.y + eps);
+    vec3 proj2 = xproject(matrix * vec4(xfn(u, m), yfn(u, m), zfn(u, m), wfn(u, m)));
 
     vPosition = proj;
     vNormal = normalize(cross(proj2 - proj, proj1 - proj));
     #elif DIMENSIONS == 3
     float eps = 5e-5;
-    float t = tmin + (tmax - tmin) * uvw.x;
-    float s = smin + (smax - smin) * uvw.y;
-    float r = rmin + (rmax - rmin) * uvw.z;
-    vec3 proj = xproject(matrix * vec4(x(t, s, r), y(t, s, r), z(t, s, r), w(t, s, r)));
-    float n = tmin + (tmax - tmin) * (uvw.x + eps);
-    vec3 proj1 = xproject(matrix * vec4(x(n, s, r), y(n, s, r), z(n, s, r), w(n, s, r)));
-    float m = smin + (smax - smin) * (uvw.y + eps);
-    vec3 proj2 = xproject(matrix * vec4(x(t, m, r), y(t, m, r), z(t, m, r), w(t, m, r)));
-    float l = rmin + (rmax - rmin) * (uvw.z + eps);
-    vec3 proj3 = xproject(matrix * vec4(x(t, s, l), y(t, s, l), z(t, s, l), w(t, s, l)));
+    vec3 proj = xproject(matrix * vec4(xfn(u, v, w), yfn(u, v, w), zfn(u, v, w), wfn(u, v, w)));
+    float n = umin + (umax - umin) * (uvw.x + eps);
+    vec3 proj1 = xproject(matrix * vec4(xfn(n, v, w), yfn(n, v, w), zfn(n, v, w), wfn(n, v, w)));
+    float m = vmin + (vmax - vmin) * (uvw.y + eps);
+    vec3 proj2 = xproject(matrix * vec4(xfn(u, m, w), yfn(u, m, w), zfn(u, m, w), wfn(u, m, w)));
+    float l = wmin + (wmax - wmin) * (uvw.z + eps);
+    vec3 proj3 = xproject(matrix * vec4(xfn(u, v, l), yfn(u, v, l), zfn(u, v, l), wfn(u, v, l)));
 
     vPosition = proj;
     vNormal = normalize(proj1 + proj2 + proj3);

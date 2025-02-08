@@ -85,31 +85,31 @@ export default memo(function Preset({
             <div className="preset-content">
               <span className="preset-name">{name}</span>
               <code className="preset-formula">
-                {!['', '0'].includes(params.xfun) ? (
+                {!['', '0'].includes(params.xfn) ? (
                   <>
                     <span className="preset-assignment">x(t) = </span>{' '}
-                    {params.xfun}
+                    {params.xfn}
                     <br />
                   </>
                 ) : null}
-                {!['', '0'].includes(params.yfun) ? (
+                {!['', '0'].includes(params.yfn) ? (
                   <>
                     <span className="preset-assignment">y(t) = </span>{' '}
-                    {params.yfun}
+                    {params.yfn}
                     <br />
                   </>
                 ) : null}
-                {!['', '0'].includes(params.zfun) ? (
+                {!['', '0'].includes(params.zfn) ? (
                   <>
                     <span className="preset-assignment">z(t) = </span>{' '}
-                    {params.zfun}
+                    {params.zfn}
                     <br />
                   </>
                 ) : null}
-                {!['', '0'].includes(params.wfun) ? (
+                {!['', '0'].includes(params.wfn) ? (
                   <>
                     <span className="preset-assignment">w(t) = </span>{' '}
-                    {params.wfun}
+                    {params.wfn}
                     <br />
                   </>
                 ) : null}

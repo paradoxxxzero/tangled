@@ -33,4 +33,4 @@ export const eps = x => (abs(x) < 1e-9 ? 0 : x)
 
 export const float = v => v.toFixed(16).replace(/0*$/, '')
 
-export const VARS = ['t', 's', 'r']
+export const VARS = ['u', 'v', 'w']

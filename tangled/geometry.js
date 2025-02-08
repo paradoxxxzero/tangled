@@ -124,7 +124,7 @@ export const tube = ({
     radiusBottom = radius
   }
   const x_segments = x_resolution
-  const y_segments = y_resolution * 10
+  const y_segments = y_resolution
   let index = 0
   const indexArray = []
   const halfHeight = height / 2

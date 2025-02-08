@@ -34,7 +34,7 @@ export const filterParams = (maybeBadParams, changed = [], oldParams) => {
     }
   })
 
-  const funs = ['xfun', 'yfun', 'zfun', 'wfun']
+  const funs = ['xfn', 'yfn', 'zfn', 'wfn']
   if (funs.some(fun => changed.includes(fun))) {
     const args = [
       ...new Set(

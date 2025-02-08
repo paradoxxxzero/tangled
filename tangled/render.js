@@ -58,10 +58,6 @@ export const preprocess = (rt, source) => {
 
   const decl = rt.vars.map(d => `float ${d}`).join(', ')
 
-  const x = ast(rt.xfun)
-  const y = ast(rt.yfun)
-  const z = ast(rt.zfun)
-  const w = ast(rt.wfun)
   // const xp = x.toDerivative([], vars).simplify()
   // const yp = y.toDerivative([], vars).simplify()
   // const zp = z.toDerivative([], vars).simplify()
@@ -71,22 +67,12 @@ export const preprocess = (rt, source) => {
 
   source = source.replace(
     '##FUNS',
-    Object.entries({
-      x,
-      y,
-      z,
-      w,
-      // xp,
-      // yp,
-      // zp,
-      // xpp,
-      // ypp,
-      // zpp,
-    })
+    ['xfn', 'yfn', 'zfn', 'wfn']
       .map(
-        ([k, v]) => `float ${k}(${decl}) {
+        v =>
+          `float ${v}(${decl}) {
   #init_args
-  return ${v.toShader()};
+  return ${ast(rt[v]).toShader()};
 }`
       )
       .join('\n\n\n')

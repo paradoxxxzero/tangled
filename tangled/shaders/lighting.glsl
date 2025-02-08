@@ -85,7 +85,7 @@ float getDiffuse(in vec3 normal, in vec3 uvw, in vec3 lightDirection, in vec3 ey
   float A = 1.0 + sigma2 * (albedo / (sigma2 + 0.13) + 0.5 / (sigma2 + 0.33));
   float B = 0.45 * sigma2 / (sigma2 + 0.09);
 
-  return albedo * max(0.0, NdotL) * (A + B * s / t) / 3.1415926535897932384626433832795;
+  return albedo * max(0.0, NdotL) * (A + B * s / t) / PI;
   #elif DIFFUSE == 2
   // Minnaert
   float diffuse = abs(dot(normal, lightDirection));
