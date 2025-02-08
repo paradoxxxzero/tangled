@@ -94,7 +94,7 @@ export const presets = withDefaults([
       smin: -PI,
       smax: PI,
       args: {
-        a: 1,
+        a: 1.5,
       },
     },
   },

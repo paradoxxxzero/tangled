@@ -34,7 +34,7 @@ const previewer = {
       ...defaultParams,
       ...params,
       transparent: false,
-      alpha: 100,
+      opacity: 100,
       grid: false,
       background: [0, 0, 0, 1],
     }

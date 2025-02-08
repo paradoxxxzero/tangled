@@ -6,7 +6,6 @@ uniform float smax;
 uniform float rmin;
 uniform float rmax;
 
-uniform float alpha;
 uniform float anakata;
 uniform float speed;
 uniform float time;
@@ -22,6 +21,8 @@ uniform float velocity;
 uniform float hue;
 uniform float saturation;
 uniform float lightness;
+uniform float fresnel;
+uniform float celShading;
 
 uniform vec3 eye;
 

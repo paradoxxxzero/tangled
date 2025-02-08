@@ -5,6 +5,7 @@ import globalsSource from './shaders/globals.glsl?raw'
 import renderSource from './shaders/render.glsl?raw'
 import vertexSource from './shaders/vertex.glsl?raw'
 import colorsSource from './shaders/colors.glsl?raw'
+import lightingSource from './shaders/lighting.glsl?raw'
 import oitVertexSource from './shaders/oit/vertex.glsl?raw'
 import oitFragmentSource from './shaders/oit/fragment.glsl?raw'
 import { cage, grid, tube } from './geometry'
@@ -24,6 +25,7 @@ import { cbrt, sqrt, VARS } from './math'
 export const includes = {
   includes: includesSource,
   colors: colorsSource,
+  lighting: lightingSource,
   globals: globalsSource,
   render: renderSource,
 }

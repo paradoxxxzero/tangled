@@ -25,8 +25,17 @@ float weight(float z, float a) {
 out vec4 outColor;
 #endif
 
-float grid(vec3 color, vec3 vUvw, float scale, float width) {
+#ifdef SHADING
+  #if SHADING == 5
+flat in float vId;
+  #elif SHADING == 6
+flat in float vId;
+  #endif
+#endif
 
+#include lighting
+
+float grid(vec4 color, vec3 vUvw, float scale, float width) {
     vec3 gridDist = fract(2. * (vUvw) * scale);
     gridDist = min(gridDist, 1. - gridDist);
     gridDist /= fwidth(vUvw) * scale;
@@ -41,20 +50,25 @@ float grid(vec3 color, vec3 vUvw, float scale, float width) {
 }
 
 void main() {
-    vec3 albedo = color(vUvw.y * 100.);
-    vec3 eyeDirection = normalize(eye - vPosition);
-    vec3 lightPosition = eye;
-    vec3 lightDirection = normalize(lightPosition - vPosition);
-    float diffuse = abs(dot(vNormal, lightDirection));
-    #ifdef CEL_SHADING
-    diffuse = floor(diffuse * float(CEL_SHADING)) / float(CEL_SHADING);
+    vec3 baseColor = color(vUvw.y * 100.);
+    #ifdef SHADING
+    vec4 color = light(vPosition, vNormal, baseColor, vUvw);
+    #else
+    vec4 color = vec4(baseColor, opacity);
     #endif
-    vec3 halfVector = normalize(lightDirection + eyeDirection);
-    float specular = pow(abs(dot(vNormal, halfVector)), 32.);
-    float k = diffuse + specular;
-    vec3 color = (k + .2) * albedo;
+    // vec3 eyeDirection = normalize(eye - vPosition);
+    // vec3 lightPosition = eye;
+    // vec3 lightDirection = normalize(lightPosition - vPosition);
+    // float diffuse = abs(dot(vNormal, lightDirection));
+    // #ifdef CEL_SHADING
+    // diffuse = floor(diffuse * float(CEL_SHADING)) / float(CEL_SHADING);
+    // #endif
+    // vec3 halfVector = normalize(lightDirection + eyeDirection);
+    // float specular = pow(abs(dot(vNormal, halfVector)), 32.);
+    // float k = diffuse + specular;
+    // vec3 color = (k + .2) * albedo;
 
-    float opacity = alpha;
+    // float opacity = alpha;
 
     #ifdef GRID
     float dist = grid(color, vUvw, gridScale, gridWidth);
@@ -70,10 +84,10 @@ void main() {
     #endif
 
     #ifdef TRANSPARENT
-    float w = weight(gl_FragCoord.z, opacity);
-    accumColor = vec4(color * opacity * w, opacity);
-    accumAlpha = opacity * w;
+    float w = weight(gl_FragCoord.z, color.a);
+    accumColor = vec4(color.rgb * color.a * w, color.a);
+    accumAlpha = color.a * w;
     #else
-    outColor = vec4(color, opacity);
+    outColor = color;
     #endif
 }

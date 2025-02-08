@@ -17,6 +17,32 @@ export const palettes = [
   'turbo',
 ]
 
+export const shadings = [
+  '',
+  'ads',
+  'gravity',
+  'normal',
+  'position',
+  'uv',
+  'instance',
+  'vertex',
+]
+export const diffuseLight = [
+  '',
+  'lambert',
+  'oren-nayar',
+  'minnaert',
+  'cel',
+  'reverse',
+]
+export const specularLight = [
+  '',
+  'phong',
+  'blinn-phong',
+  'cook-torrance',
+  'ward-anisotropic',
+]
+
 export const controls = ['3d', '4d', 'arg']
 
 export const defaultParams = {
@@ -31,17 +57,17 @@ export const defaultParams = {
   rmin: 0,
   rmax: TAU,
   transparent: true,
-  alpha: 40,
-  grid: true,
+  opacity: 40,
+  grid: false,
   gridWidth: 100,
   gridScale: 10,
   subgrid: false,
   subgridWidth: 50,
   subgridScale: 50,
   invertGrid: false,
-  x_resolution: 10,
-  y_resolution: 10,
-  z_resolution: 10,
+  x_resolution: 40,
+  y_resolution: 40,
+  z_resolution: 3,
   x_faces: true,
   y_faces: true,
   z_faces: true,
@@ -52,9 +78,17 @@ export const defaultParams = {
   hue: 0,
   saturation: 100,
   lightness: 100,
+  shading: 'ads',
+  diffuse: 'lambert',
+  specular: 'blinn-phong',
+  ambient: 0.2,
+  shininess: 32,
+  metalness: 0,
+  roughness: 0.85,
+  fresnel: 3,
+  useFresnel: 3,
   celShading: 4,
-  specular: true,
-  supersampling: window.devicePixelRatio > 2 ? window.devicePixelRatio / 2 : 1,
+  supersampling: window.devicePixelRatio,
   matrix: ident(),
   rotation: 0,
   thickness: 100,
@@ -70,16 +104,19 @@ export const defaultParams = {
 
 export const allParams = Object.keys(defaultParams)
 export const compileConstants = {
-  palette: rt => palettes.indexOf(rt.palette),
+  palette: (_, v) => palettes.indexOf(v),
   dimensions: rt => rt.vars.length,
   animate: null,
   grid: null,
   subgrid: null,
   transparent: null,
   invertGrid: null,
-  celShading: (_, v) => v !== 0 && v,
-  specular: null,
+  shading: (_, v) => (v ? shadings.indexOf(v) - 1 : false),
+  diffuse: (_, v) => (v ? diffuseLight.indexOf(v) - 1 : false),
+  specular: (_, v) => (v ? specularLight.indexOf(v) - 1 : false),
+  useFresnel: null,
 }
+
 export const compileParams = [
   'xfun',
   'yfun',
@@ -96,7 +133,7 @@ export const uniformParams = {
   rmin: '1f',
   rmax: '1f',
   aspect: '1f',
-  alpha: {
+  opacity: {
     type: '1f',
     value: v => v / 100,
   },
@@ -147,5 +184,11 @@ export const uniformParams = {
     type: '1f',
     value: v => v / 100,
   },
+  ambient: '1f',
+  shininess: '1f',
+  metalness: '1f',
+  roughness: '1f',
+  fresnel: '1f',
+  celShading: '1f',
   subgridScale: '1f',
 }

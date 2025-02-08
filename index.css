@@ -651,3 +651,13 @@ select option {
   z-index: 1000;
   mix-blend-mode: difference;
 }
+
+.rotate {
+  position: relative;
+}
+
+.rotate sub {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}

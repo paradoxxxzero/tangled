@@ -1,10 +1,18 @@
 import { useCallback, useEffect, useState, Fragment } from 'react'
 
-import { controls, palettes } from '../default.js'
+import {
+  controls,
+  diffuseLight,
+  palettes,
+  shadings,
+  specularLight,
+} from '../default.js'
 import { makeBigPng } from '../export.js'
 import {
   contrastIcon,
   eyeIcon,
+  moveCenterIcon,
+  moveConstantIcon,
   noContrastIcon,
   playIcon,
   presetsIcon,
@@ -209,20 +217,16 @@ export default function UI({ runtime, params, setRuntime, updateParams }) {
                   <button
                     className="button"
                     onClick={() => {
-                      if (params.control === '3d') {
-                        runtime.env.camera.rotation = ident()
-                        runtime.env.camera.zoom = 8
-                        runtime.env.camera.update()
-                        render(runtime)
-                        return
-                      }
+                      runtime.env.camera.rotation = ident()
+                      runtime.env.camera.zoom = 8
+                      runtime.env.camera.update()
                       updateParams({
                         matrix: ident(),
                         anakata: 10,
                       })
                     }}
                   >
-                    🕀
+                    {moveCenterIcon}
                   </button>
                 </>
               ) : null}
@@ -327,13 +331,80 @@ export default function UI({ runtime, params, setRuntime, updateParams }) {
                 />
               ) : null}
               {['full'].includes(showUI) ? (
-                <Number
-                  name="celShading"
-                  label="Cel Shading"
-                  min={0}
-                  value={params.celShading}
-                  onChange={handleChange}
-                />
+                <>
+                  <Select
+                    label="Shading"
+                    name="shading"
+                    value={params.shading}
+                    options={shadings}
+                    onChange={handleChange}
+                  />
+                  <Select
+                    label="Diffuse"
+                    name="diffuse"
+                    value={params.diffuse}
+                    options={diffuseLight}
+                    onChange={handleChange}
+                  />
+                  <Select
+                    label="Specular"
+                    name="specular"
+                    value={params.specular}
+                    options={specularLight}
+                    onChange={handleChange}
+                  />
+                  {params.specular === 'phong' ||
+                  params.specular === 'blinn-phong' ||
+                  params.specular === 'ward-anisotropic' ? (
+                    <Number
+                      name="shininess"
+                      label="Shininess"
+                      step={0.1}
+                      value={params.shininess}
+                      onChange={handleChange}
+                    />
+                  ) : null}
+                  {params.diffuse === 'oren-nayar' ||
+                  params.specular === 'cook-torrance' ||
+                  params.specular === 'ward-anisotropic' ? (
+                    <Number
+                      name="roughness"
+                      label="Roughness"
+                      step={0.1}
+                      value={params.roughness}
+                      onChange={handleChange}
+                    />
+                  ) : null}
+                  {params.transparent ? (
+                    <Number
+                      name="fresnel"
+                      label="Fresnel"
+                      step={0.1}
+                      value={params.fresnel}
+                      toggler={params.useFresnel}
+                      togglerName="useFresnel"
+                      onChange={handleChange}
+                    />
+                  ) : null}
+                  {params.useFresnel ? (
+                    <Number
+                      name="metalness"
+                      label="Metalness"
+                      step={0.1}
+                      value={params.metalness}
+                      onChange={handleChange}
+                    />
+                  ) : null}
+                  {params.diffuse === 'cel' ? (
+                    <Number
+                      name="celShading"
+                      label="Cel Shading"
+                      min={0}
+                      value={params.celShading}
+                      onChange={handleChange}
+                    />
+                  ) : null}
+                </>
               ) : null}
               {['advanced', 'full'].includes(showUI) && params.animate ? (
                 <Number
@@ -396,22 +467,24 @@ export default function UI({ runtime, params, setRuntime, updateParams }) {
                   />
                 </>
               ) : null}
+              {params.vars.length === 1 ? (
+                <Number
+                  name="thickness"
+                  label="Thickness"
+                  step={10}
+                  value={params.thickness}
+                  onChange={handleChange}
+                />
+              ) : null}
               <Number
-                name="thickness"
-                label="Thickness"
-                step={10}
-                value={params.thickness}
-                onChange={handleChange}
-              />
-              <Number
-                name="alpha"
+                name="opacity"
                 step={10}
                 min={0}
                 max={100}
                 label="Transparent"
                 toggler={params.transparent}
                 togglerName="transparent"
-                value={params.alpha}
+                value={params.opacity}
                 onChange={handleChange}
               />
               {['advanced', 'full'].includes(showUI) ? (
@@ -537,9 +610,10 @@ export default function UI({ runtime, params, setRuntime, updateParams }) {
                   𝚫<sub>{params.move}</sub>
                 </>
               ) : (
-                <>
-                  🗘<sub>{params.control === '4d' ? params.rotation : ''}</sub>
-                </>
+                <span className="rotate">
+                  {moveConstantIcon}
+                  <sub>{params.control === '4d' ? params.rotation : ''}</sub>
+                </span>
               )}
             </button>
           ) : null}

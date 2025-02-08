@@ -12,6 +12,14 @@ out vec3 vPosition;
 out vec3 vUvw;
 out vec3 vNormal;
 
+#ifdef SHADING
+  #if SHADING == 5
+flat out float vId;
+  #elif SHADING == 6
+flat out float vId;
+  #endif
+#endif
+
 uniform mat4 matrix;
 uniform mat4 viewProjection;
 
@@ -83,4 +91,12 @@ void main() {
     #endif
     vUvw = uvw;
     gl_Position = vec4(viewProject(vPosition));
+
+    #ifdef SHADING 
+    #if SHADING == 5
+    vId = float(gl_InstanceID);
+    #elif SHADING == 6
+    vId = float(gl_VertexID);
+    #endif
+    #endif
 }

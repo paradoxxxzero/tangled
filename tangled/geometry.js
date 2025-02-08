@@ -13,11 +13,11 @@ export const cage = ({
   const uvws = []
 
   const x_step = 1 / x_resolution
-  const x_count = 2 * x_resolution + 1
+  const x_count = x_resolution + 1
   const y_step = 1 / y_resolution
-  const y_count = 2 * y_resolution + 1
+  const y_count = y_resolution + 1
   const z_step = 1 / z_resolution
-  const z_count = 2 * z_resolution + 1
+  const z_count = z_resolution + 1
 
   const xy_count = x_count * y_count
 
@@ -34,12 +34,12 @@ export const cage = ({
             indices.push(
               i + j * x_count + k * xy_count,
               i + j1 * x_count + k * xy_count,
-              i1 + j1 * x_count + k * xy_count
+              i + j1 * x_count + k1 * xy_count
             )
             indices.push(
               i + j * x_count + k * xy_count,
-              i1 + j1 * x_count + k * xy_count,
-              i1 + j * x_count + k * xy_count
+              i + j1 * x_count + k1 * xy_count,
+              i + j * x_count + k1 * xy_count
             )
           }
           if (y_faces) {
@@ -58,12 +58,12 @@ export const cage = ({
             indices.push(
               i + j * x_count + k * xy_count,
               i + j1 * x_count + k * xy_count,
-              i + j1 * x_count + k1 * xy_count
+              i1 + j1 * x_count + k * xy_count
             )
             indices.push(
               i + j * x_count + k * xy_count,
-              i + j1 * x_count + k1 * xy_count,
-              i + j * x_count + k1 * xy_count
+              i1 + j1 * x_count + k * xy_count,
+              i1 + j * x_count + k * xy_count
             )
           }
         }
@@ -83,9 +83,9 @@ export const grid = ({ x_resolution, y_resolution } = {}) => {
   const uvws = []
 
   const x_step = 1 / x_resolution
-  const x_count = 2 * x_resolution + 1
+  const x_count = x_resolution + 1
   const y_step = 1 / y_resolution
-  const y_count = 2 * y_resolution + 1
+  const y_count = y_resolution + 1
 
   for (let j = 0; j < y_count; j++) {
     for (let i = 0; i < x_count; i++) {
